@@ -32,7 +32,7 @@
 #include "LuaState.h"
 #include <functional>
 #include <tuple>
-#include <memory>
+//#include <memory>
 
 namespace LuaIntf
 {

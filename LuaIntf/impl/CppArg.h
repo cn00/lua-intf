@@ -24,6 +24,12 @@
 // DEALINGS IN THE SOFTWARE.
 //
 
+
+//#ifndef __CPPARG__
+//#define __CPPARG__
+
+//#include "CppArgBase.h"
+
 struct _arg {};
 
 template <typename T>
@@ -95,7 +101,7 @@ template <typename T>
 struct CppArgTraits
 {
     using Type = T;
-    using ValueType = typename std::result_of<decltype(&LuaType<T>::get)(lua_State*, int)>::type;
+    using ValueType = typename std::result_of<decltype(&LuaIntf::LuaType<T>::get)(lua_State*, int)>::type;
     using HolderType = CppArgHolder<ValueType>;
 
     static constexpr bool isInput = true;
@@ -178,11 +184,11 @@ struct CppArgTraits <lua_State*>
 };
 
 template <>
-struct CppArgTraits <LuaState>
+struct CppArgTraits <LuaIntf::LuaState>
 {
-    using Type = LuaState;
-    using ValueType = LuaState;
-    using HolderType = CppArgHolder<LuaState>;
+    using Type = LuaIntf::LuaState;
+    using ValueType = LuaIntf::LuaState;
+    using HolderType = CppArgHolder<LuaIntf::LuaState>;
 
     static constexpr bool isInput = false;
     static constexpr bool isOutput = false;
@@ -209,7 +215,7 @@ struct CppArgInput <Traits, true, false, HasDefault>
 {
     static int get(lua_State* L, int index, typename Traits::HolderType& r)
     {
-        r.hold(LuaType<typename Traits::Type>::get(L, index));
+        r.hold(LuaIntf::LuaType<typename Traits::Type>::get(L, index));
         return 1;
     }
 };
@@ -220,7 +226,7 @@ struct CppArgInput <Traits, true, true, false>
     static int get(lua_State* L, int index, typename Traits::HolderType& r)
     {
         using DefaultType = typename std::decay<typename Traits::ValueType>::type;
-        r.hold(LuaType<typename Traits::Type>::opt(L, index, DefaultType()));
+        r.hold(LuaIntf::LuaType<typename Traits::Type>::opt(L, index, DefaultType()));
         return 1;
     }
 };
@@ -230,7 +236,7 @@ struct CppArgInput <Traits, true, true, true>
 {
     static int get(lua_State* L, int index, typename Traits::HolderType& r)
     {
-        r.hold(LuaType<typename Traits::Type>::opt(L, index, Traits::defaultValue));
+        r.hold(LuaIntf::LuaType<typename Traits::Type>::opt(L, index, Traits::defaultValue));
         return 1;
     }
 };
@@ -246,9 +252,9 @@ struct CppArgInput <CppArgTraits<lua_State*>, false, false, false>
 };
 
 template <>
-struct CppArgInput <CppArgTraits<LuaState>, false, false, false>
+struct CppArgInput <CppArgTraits<LuaIntf::LuaState>, false, false, false>
 {
-    static int get(lua_State* L, int, CppArgHolder<LuaState>& r)
+    static int get(lua_State* L, int, CppArgHolder<LuaIntf::LuaState>& r)
     {
         r.hold(L);
         return 0;
@@ -274,7 +280,7 @@ struct CppArgOutput <Traits, true>
 {
     static int push(lua_State* L, const typename Traits::ValueType& v)
     {
-        LuaType<typename Traits::Type>::push(L, v);
+        LuaIntf::LuaType<typename Traits::Type>::push(L, v);
         return 1;
     }
 };
@@ -354,3 +360,5 @@ struct CppArgTupleOutput <P0, P...>
         return n + CppArgTupleOutput<P...>::push(L, t);
     }
 };
+
+//#endif
